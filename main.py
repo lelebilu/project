@@ -1,6 +1,8 @@
 import sys
 import pygame
 import random
+import alarm
+import notes
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget,QMenu
 from PyQt5.QtGui import QPixmap, QPainter, QBitmap, QCursor
@@ -37,12 +39,16 @@ class PixWindow(QWidget):  # 不规则窗体
         if event.button()==Qt.RightButton:
             contextMenu=QMenu(self)
             postitAct=contextMenu.addAction("Post it")
-            scheduleAct=contextMenu.addAction("Schedule")
+            alarmAct=contextMenu.addAction("Alarm")
             countdowndaysAct=contextMenu.addAction("CountdownDays")
             quitAct=contextMenu.addAction("Bye")
             action=contextMenu.exec_(self.mapToGlobal(event.pos()))
             if action==postitAct:
-                notes.main()
+                self.p=notes.MainWindow()
+                self.p.show()
+            if action==alarmAct:
+                self.a=alarm.alarmwindow()
+                self.a.show()
             if action==quitAct:
                 self.close()
             
