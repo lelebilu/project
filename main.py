@@ -7,6 +7,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget,QMenu
 from PyQt5.QtGui import QPixmap, QPainter, QBitmap, QCursor
 import PyQt5.QtCore as QtCore
+import win32gui, win32api
+import win32com.client
  
  
 class PixWindow(QWidget):  # 不规则窗体
@@ -41,6 +43,7 @@ class PixWindow(QWidget):  # 不规则窗体
             postitAct=contextMenu.addAction("Post it")
             alarmAct=contextMenu.addAction("Alarm")
             countdowndaysAct=contextMenu.addAction("CountdownDays")
+            calculatorAct=contextMenu.addAction("Calculator")
             quitAct=contextMenu.addAction("Bye")
             action=contextMenu.exec_(self.mapToGlobal(event.pos()))
             if action==postitAct:
@@ -49,6 +52,13 @@ class PixWindow(QWidget):  # 不规则窗体
             if action==alarmAct:
                 self.a=alarm.alarmwindow()
                 self.a.show()
+            if action==calculatorAct:
+                wscript = win32com.client.Dispatch("WScript.Shell")
+                wscript.Run("calc")
+                win32api.Sleep(500)
+                win = win32gui.FindWindow(None, "小算盤")
+                win32api.Sleep(500)
+                win32gui.SetForegroundWindow(win)
             if action==quitAct:
                 self.close()
             
