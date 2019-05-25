@@ -18,7 +18,7 @@ class PixWindow(QWidget):  # 不规则窗体
     def __init__(self):
         super().__init__()
  
-        self.pix = QPixmap('xmq.png')
+        self.pix = QPixmap('origin.png')
         self.resize(138, 191)
         self.pix = self.pix.scaled(int(114), int(176))
         self.setMask(self.pix.mask()) 
@@ -30,7 +30,7 @@ class PixWindow(QWidget):  # 不规则窗体
     def mousePressEvent(self, event):
         #鼠标左键按下
         if event.button() == Qt.LeftButton:
-            self.pix.load('xmq2.png')
+            self.pix.load('drag.png')
             self.pix = self.pix.scaled(int(138), int(191))
             self.setMask(self.pix.mask())
             self.m_drag = True
@@ -71,7 +71,7 @@ class PixWindow(QWidget):  # 不规则窗体
         screen = QDesktopWidget().screenGeometry()
         while(self.y() < (screen.height() - 210)):
             self.move((self.x()), self.y()+1)
-        self.pix.load('xmq.png')
+        self.pix.load('origin.png')
         self.pix = self.pix.scaled(int(114), int(176))
         self.setMask(self.pix.mask())
         self.m_drag = False
