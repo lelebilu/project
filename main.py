@@ -2,7 +2,7 @@ import sys
 import pygame
 import random
 import alarm
-import notes
+import note
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget,QMenu
 from PyQt5.QtGui import QPixmap, QPainter, QBitmap, QCursor
@@ -47,7 +47,7 @@ class PixWindow(QWidget):  # 不规则窗体
             quitAct=contextMenu.addAction("Bye")
             action=contextMenu.exec_(self.mapToGlobal(event.pos()))
             if action==postitAct:
-                self.p=notes.MainWindow()
+                self.p=note.FirstUi()
                 self.p.show()
             if action==alarmAct:
                 self.a=alarm.alarmwindow()
