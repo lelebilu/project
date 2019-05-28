@@ -7,26 +7,29 @@ from PyQt5.QtWidgets import QWidget, QCheckBox, QApplication, QPushButton,QMessa
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
 
+font = QFont() 
+font.setFamily('Comic Sans MS')
+font.setBold(True)
 
 class SwitchBtn(QWidget):
     #信号
     checkedChanged = pyqtSignal(bool)
     def __init__(self,parent=None):
         super(QWidget, self).__init__(parent)
-
+        
+        
         self.checked = False
-        self.bgColorOff = QColor(255, 255, 255)
-        self.bgColorOn = QColor(0, 0, 0)
+        self.bgColorOn = QColor(240, 128, 128)
+        self.bgColorOff = QColor(119,136,153)
 
-        self.sliderColorOff = QColor(100, 100, 100)
-        self.sliderColorOn = QColor(100, 184, 255)
+        self.sliderColorOn = QColor(100, 100, 100)
+        self.sliderColorOff = QColor(240, 128, 128)
 
-        self.textColorOff = QColor(143, 143, 143)
         self.textColorOn = QColor(255, 255, 255)
+        self.textColorOff = QColor(255, 255, 255)
 
         self.textOff = "OFF"
         self.textOn = "ON"
-
         self.space = 2
         self.rectRadius = 5
 
@@ -152,48 +155,113 @@ class SwitchBtn(QWidget):
 class Timebox(QWidget):
     def __init__(self,parent=None):
         super(QWidget, self).__init__(parent)
-        self.hour=QLineEdit(self)
+        self.hour=QComboBox(self)
+        hours=['0','1','2','3','4','5','6','7','8','9',
+               '10','11','12','13','14','15','16','17',
+               '18','19','20','21','22','23']
+        self.hour.addItems(hours)
+        self.hour.setMaxVisibleItems(8)
         self.hour.setFixedHeight(30)
-        self.colon=QLabel('：')
+        self.hour.setStyleSheet("border: 1px solid gray;border-radius:3px;min-width: 1em;selection-background-color:LightCoral;")
+        self.hour.setFont(font) 
+        self.colon=QLabel('    ：')
+        self.colon.setFont(font)
         self.colon.setFixedHeight(30)
-        self.min=QLineEdit(self)
+        self.min=QComboBox(self)
+        mins=['0','1','2','3','4','5','6','7','8','9',
+              '10','11','12','13','14','15','16','17',
+              '18','19','20','21','22','23','24','25',
+              '26','27','28','29','30','31','32','33',
+              '34','35','36','37','38','39','40','41',
+              '42','43','44','45','46','47','48','49',
+              '50','51','52','53','54','55','56','57',
+              '58','59']
+        self.min.addItems(mins)
+        self.min.setMaxVisibleItems(8)
         self.min.setFixedHeight(30)
+        self.min.setFont(font)
+        self.min.setStyleSheet("border: 1px solid gray;border-radius:3px;min-width: 1em;selection-background-color:LightCoral;")
         h_layout = QHBoxLayout()
         h_layout.addWidget(self.hour)
         h_layout.addWidget(self.colon)
         h_layout.addWidget(self.min)
         self.setLayout(h_layout)
-        
 
-class alarmwindow(QWidget):
+class alarmwindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.set_Ui()
     def set_Ui(self):
+        icon=QIcon("alarm.png")
+        self.setWindowIcon(icon)
         self.setWindowTitle('alarm')
-        self.resize(400, 400)
-        self.tb1=Timebox(self)
-        self.switchBtn = SwitchBtn(self)
-        self.switchBtn.setGeometry(310,13,60,30)
-        self.tb1.setGeometry(10,0,300,50)
-        self.switchBtn.checkedChanged.connect(self.getState)
+        self.setup(self)
+        self.resize(400, 500)
         
-    def addalarm():
-        print('add')
+        self.timelabel=QLabel(self)
+        self.timelabel.setGeometry(-143,-130,800,500)
+        self.timelabel.setFont(QFont('Comic Sans MS',36,QFont.Bold))
+        
+        timer = QTimer(self)
+        timer.timeout.connect(self.showtime)
+        timer.start()
+        
+        self.tb1=Timebox(self)
+        self.switchBtn1 = SwitchBtn(self)
+        self.switchBtn1.setGeometry(310,233,60,30)
+        self.tb1.setGeometry(10,220,300,50)
+        self.switchBtn1.checkedChanged.connect(self.getState)
+        
+        self.tb2=Timebox(self)
+        self.switchBtn2 = SwitchBtn(self)
+        self.switchBtn2.setGeometry(310,283,60,30)
+        self.tb2.setGeometry(10,270,300,50)
+        self.switchBtn2.checkedChanged.connect(self.getState)
+        
+        self.tb3=Timebox(self)
+        self.switchBtn3 = SwitchBtn(self)
+        self.switchBtn3.setGeometry(310,333,60,30)
+        self.tb3.setGeometry(10,320,300,50)
+        self.switchBtn3.checkedChanged.connect(self.getState)
+        
+        self.tb4=Timebox(self)
+        self.switchBtn4 = SwitchBtn(self)
+        self.switchBtn4.setGeometry(310,383,60,30)
+        self.tb4.setGeometry(10,370,300,50)
+        self.switchBtn4.checkedChanged.connect(self.getState)
+        
+        self.tb5=Timebox(self)
+        self.switchBtn5 = SwitchBtn(self)
+        self.switchBtn5.setGeometry(310,433,60,30)
+        self.tb5.setGeometry(10,420,300,50)
+        self.switchBtn5.checkedChanged.connect(self.getState)
+
+    
+    def setup(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.setStyleSheet("#MainWindow{background-color:white}")
+        #self.centralwidget =QWidget(MainWindow)
+        #self.centralwidget.setObjectName("centralwidget")
+        
+    def showtime(self):
+        time = QTime.currentTime()
+        text = time.toString(Qt.DefaultLocaleLongDate)
+        self.timelabel.setText("<font color=%s>%s</font>" %('#F08080', "     "+ text))
+        
     
     def getState(self,checked):
         print("checked=", checked)
         if checked==True:
-            print(self.tb1.hour.text())
-            print(self.tb1.min.text())
+            print(self.tb2.hour.currentIndex())
+            print(self.tb2.min.currentIndex())
             time = QTime.currentTime()
             print(time.toString(Qt.DefaultLocaleLongDate))
     
-#def main():
-#    app = QApplication(sys.argv)
-#    form = alarmwindow()
-#    form.show()
-#    sys.exit(app.exec_())
+def main():
+    app = QApplication(sys.argv)
+    form = alarmwindow()
+    form.show()
+    sys.exit(app.exec_())
 
 #if __name__ == "__main__":
 #    main()
