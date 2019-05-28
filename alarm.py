@@ -178,8 +178,6 @@ class alarmwindow(QWidget):
         self.tb1.setGeometry(10,0,300,50)
         self.switchBtn.checkedChanged.connect(self.getState)
         
-        
-        
     def addalarm():
         print('add')
     

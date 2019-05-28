@@ -1,6 +1,6 @@
 import sys
 import pygame
-import random
+import weather
 import alarm
 import notes
 from PyQt5.QtCore import Qt
@@ -44,6 +44,7 @@ class PixWindow(QWidget):  # 不规则窗体
             alarmAct=contextMenu.addAction("Alarm")
             countdowndaysAct=contextMenu.addAction("CountdownDays")
             calculatorAct=contextMenu.addAction("Calculator")
+            weatherAct=contextMenu.addAction("Weather")
             quitAct=contextMenu.addAction("Bye")
             action=contextMenu.exec_(self.mapToGlobal(event.pos()))
             if action==postitAct:
@@ -59,6 +60,9 @@ class PixWindow(QWidget):  # 不规则窗体
                 win = win32gui.FindWindow(None, "小算盤")
                 win32api.Sleep(500)
                 win32gui.SetForegroundWindow(win)
+            if action==weatherAct:
+                self.w=weather.WeatherWindow()
+                self.w.show()
             if action==quitAct:
                 self.close()
             
