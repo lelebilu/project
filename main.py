@@ -2,7 +2,6 @@ import sys
 import pygame
 import weather
 import alarm
-import note
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget,QMenu
 from PyQt5.QtGui import QPixmap, QPainter, QBitmap, QCursor
@@ -40,16 +39,12 @@ class PixWindow(QWidget):  # 不规则窗体
             self.update()
         if event.button()==Qt.RightButton:
             contextMenu=QMenu(self)
-            postitAct=contextMenu.addAction("Post it")
             alarmAct=contextMenu.addAction("Alarm")
             countdowndaysAct=contextMenu.addAction("CountdownDays")
             calculatorAct=contextMenu.addAction("Calculator")
             weatherAct=contextMenu.addAction("Weather")
             quitAct=contextMenu.addAction("Bye")
             action=contextMenu.exec_(self.mapToGlobal(event.pos()))
-            if action==postitAct:
-                self.p=note.FirstUi()
-                self.p.show()
             if action==alarmAct:
                 self.a=alarm.alarmwindow()
                 self.a.show()
