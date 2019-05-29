@@ -8,7 +8,12 @@ from PyQt5.QtGui import QPixmap, QPainter, QBitmap, QCursor
 import PyQt5.QtCore as QtCore
 import win32gui, win32api
 import win32com.client
- 
+import time
+from PyQt5.QtCore import *
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+import winsound
+
  
 class PixWindow(QWidget):  # 不规则窗体
     
@@ -80,6 +85,7 @@ class PixWindow(QWidget):  # 不规则窗体
     def paintEvent(self, event):
         paint = QPainter(self)
         paint.drawPixmap(0, 0, self.pix.width(), self.pix.height(), self.pix)
+    
       
 def numbers_to_strings(argument):
     switcher = {
@@ -88,11 +94,11 @@ def numbers_to_strings(argument):
         2: "2.mp3",
     }
     return switcher.get(argument, "nothing")
-        
-        
- 
+            
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     win = PixWindow()
     win.show()
     sys.exit(app.exec_())
+

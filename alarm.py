@@ -293,11 +293,21 @@ class alarmwindow(QMainWindow):
         self.colon2.setGeometry(202,500,70,30)
     
     def setal(self):
-        #self.s = showalarm()
+        self.s = showalarm()
         hh=self.tb1.hour.currentIndex()
         mm=self.tb1.min.currentIndex()
-        #self.s.show()
-        bibi(hh,mm)
+        if hh<10:
+            h="0"+str(hh)
+        else:
+            h=str(hh)
+        if mm<10:
+            m="0"+str(mm)
+        else:
+            m=str(mm)
+        self.s.init_ui(h,m)
+        self.s.show()
+        print('set')
+        #workThread.setvalue(h,m)
         
     def setup(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -340,17 +350,15 @@ class showalarm(QWidget):
         self.setWindowFlags(Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
         self.alarmtime=QLabel('',self)
         self.alarmtime.setGeometry(40,15,300,85)
-        self.init_ui()
+        #self.init_ui()
         
     def paintEvent(self, event):
         paint = QPainter(self)
         paint.drawPixmap(0, 0, self.pix.width(), self.pix.height(), self.pix)
     
-    def init_ui(self):
+    def init_ui(self,h,m):
         self.alarmtime.setFont(QFont('Comic Sans MS',36,QFont.Bold))
         self.alarmtime.setText("<font color=%s>%s</font>" %('#FFFFFF', h+" : "+m))
-        print(hh,mm)
-    
     def mousePressEvent(self, event):
         if event.button()==Qt.LeftButton:
             self.m_flag=True
@@ -369,29 +377,29 @@ class showalarm(QWidget):
         self.m_flag=False
         self.setCursor(QCursor(Qt.ArrowCursor))
 
-    
-def bibi(hh,mm):
-    h=str(hh)
-    if mm<10:
-        m="0"+str(mm)
-    else:
-        m=str(mm)
-        
-    while True:
-        current_time = time.strftime('%H:%M', time.localtime())
-        now = current_time.split(':')
-        #print(now)
-        if h == now[0] and m == now[1]:
-            winsound.Beep(600, 1000)
-            break
+class WorkThread(QThread): 
+    trigger = pyqtSignal() 
+    def __int__(self): 
+        super(WorkThread,self).__init__() 
+    def run(self): 
+        while True:
+            current_time = time.strftime('%H:%M', time.localtime())
+            now = current_time.split(':')
+            #print(now)
+            if self.hour == now[0] and self.min == now[1]:
+                winsound.Beep(600, 1000)
+                break 
+        self.trigger.emit()
+        #迴圈完畢後發出訊號 
+    def setvalue(self,h,m):
+        self.hour=h
+        self.min=m
+        print(self.hour,self.min)
+        self.run()
 
-
-
-def main():
+if __name__ == "__main__":
     app = QApplication(sys.argv)
+    workThread=WorkThread()
     form = alarmwindow()
     form.show()
     sys.exit(app.exec_())
-
-if __name__ == "__main__":
-    main()
