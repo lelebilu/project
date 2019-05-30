@@ -309,6 +309,11 @@ class alarmwindow(QMainWindow):
         print('set')
         #workThread.setvalue(h,m)
         
+        workThread.hour=h
+        workThread.min=m
+        workThread.start()       #計時開始 
+        workThread.trigger.connect(go)
+        
     def setup(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setStyleSheet("#MainWindow{background-color:white}")
@@ -377,10 +382,10 @@ class showalarm(QWidget):
         self.m_flag=False
         self.setCursor(QCursor(Qt.ArrowCursor))
 
-class WorkThread(QThread): 
+class WOrkThread(QThread): 
     trigger = pyqtSignal() 
     def __int__(self): 
-        super(WorkThread,self).__init__() 
+        super(WOrkThread,self).__init__() 
     def run(self): 
         while True:
             current_time = time.strftime('%H:%M', time.localtime())
@@ -396,7 +401,30 @@ class WorkThread(QThread):
         self.min=m
         print(self.hour,self.min)
         self.run()
+    
+class WorkThread(QThread): 
+    trigger = pyqtSignal() 
+    def __int__(self): 
+        super(WorkThread,self).__init__() 
+    def run(self): 
+        #for i in range(203300030): 
+        #    print(i)
+        #    pass 
+        while True:
+            current_time = time.strftime('%H:%M', time.localtime())
+            now = current_time.split(':')
+            print(now)
+            if self.hour == now[0] and self.min == now[1]:
+                winsound.Beep(600, 1000)
+                break
+        self.trigger.emit()
+        #迴圈完畢後發出訊號 
 
+def go():
+    print('go')
+
+
+        
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     workThread=WorkThread()
