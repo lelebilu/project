@@ -8,13 +8,10 @@ from PyQt5.QtGui import QPixmap, QPainter, QBitmap, QCursor
 import PyQt5.QtCore as QtCore
 import win32gui, win32api
 import win32com.client
-import time
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-import winsound
 
- 
 class PixWindow(QWidget):  # 不规则窗体
     
     windowWidth = 114
@@ -52,7 +49,9 @@ class PixWindow(QWidget):  # 不规则窗体
             action=contextMenu.exec_(self.mapToGlobal(event.pos()))
             if action==alarmAct:
                 self.a=alarm.alarmwindow()
+                #self.a.workThread=WorkThread()
                 self.a.show()
+                self.a.dialogSignel.connect(self.notice)
             if action==calculatorAct:
                 wscript = win32com.client.Dispatch("WScript.Shell")
                 wscript.Run("calc")
@@ -85,6 +84,12 @@ class PixWindow(QWidget):  # 不规则窗体
     def paintEvent(self, event):
         paint = QPainter(self)
         paint.drawPixmap(0, 0, self.pix.width(), self.pix.height(), self.pix)
+    
+    def notice(self,flag):
+        if flag==1:
+            screen = QDesktopWidget().screenGeometry()
+            size = self.geometry()
+            self.move((screen.width() - size.width()) / 2, screen.height()/2)
     
       
 def numbers_to_strings(argument):

@@ -189,14 +189,15 @@ class Timebox(QWidget):
         h_layout.addWidget(self.min)
         self.setLayout(h_layout)
 
-class alarmwindow(QMainWindow):
+class alarmwindow(QDialog):
+    dialogSignel=pyqtSignal(int)
     def __init__(self):
         super().__init__()
         self.set_Ui()
     def set_Ui(self):
         icon=QIcon("alarm.png")
         self.setWindowIcon(icon)
-        self.setWindowTitle('alarm')
+        self.setWindowTitle('Alarm')
         self.setup(self)
         self.resize(400, 570)
         
@@ -256,6 +257,7 @@ class alarmwindow(QMainWindow):
         self.gobutton.setText('GO!')
         self.gobutton.setFont(font) 
         self.gobutton.setStyleSheet("color:white;background-color:LightCoral;border-radius:4px;min-width: 3em;")
+        self.gobutton.clicked.connect(self.setcd)
         self.setbutton=QPushButton(self)
         self.setbutton.setText('SET')
         self.setbutton.setFont(font) 
@@ -308,12 +310,69 @@ class alarmwindow(QMainWindow):
         self.s.show()
         print('set')
         #workThread.setvalue(h,m)
+        self.workThread=WorkThread()
+        self.workThread.hour=h
+        self.workThread.min=m
+        self.workThread.start()
+        self.workThread.trigger.connect(self.timesup)
         
-        workThread.hour=h
-        workThread.min=m
-        workThread.start()       #計時開始 
-        workThread.trigger.connect(go)
+    
+    def setcd(self):
+        self.c=countdown()
+        self.hh=self.cdhour.currentIndex()
+        self.mm=self.cdmin.currentIndex()
+        self.ss=self.cds.currentIndex()
+        if self.hh<10:
+            self.h="0"+str(self.hh)
+        else:
+            self.h=str(self.hh)
+        if self.mm<10:
+            self.m="0"+str(self.mm)
+        else:
+            self.m=str(self.mm)
+        if self.ss<10:
+            self.s="0"+str(self.ss)
+        else:
+            self.s=str(self.ss)
+        self.c.init_ui(self.h,self.m,self.s)
+        self.c.show()
+        self.cdtimer=QTimer(self)
+        self.cdtimer.timeout.connect(self.timer_timeout)
+        self.cdtimer.start(1000)
+        print('set')
+    
+    def timer_timeout(self):
+        self.ss=self.ss-1
+        print(self.hh,self.mm,self.ss)
+        if self.hh==0 and self.mm==0 and self.ss==-1:
+            self.cdtimer.stop()
+            self.timesupcd()
+        else:    
+            if self.ss==-1:
+                self.ss=59
+                self.mm=self.mm-1
+                if self.mm==-1:
+                    self.mm=59
+                    self.hh=self.hh-1
+            if self.hh<10:
+                self.h="0"+str(self.hh)
+            else:
+                self.h=str(self.hh)
+            if self.mm<10:
+                self.m="0"+str(self.mm)
+            else:
+                self.m=str(self.mm)
+            if self.ss<10:
+                self.s="0"+str(self.ss)
+            else:
+                self.s=str(self.ss)
+            self.c.init_ui(self.h,self.m,self.s)
+            self.c.show()
         
+    def stopthread(self,flag):
+        if flag==1:
+            print(flag)
+              
     def setup(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setStyleSheet("#MainWindow{background-color:white}")
@@ -336,32 +395,38 @@ class alarmwindow(QMainWindow):
         filename,  _ = QFileDialog.getOpenFileName(self, 'Open file', './')
         file=open(filename)
         self.file.setText(filename.split("/")[-1] )
+    
+    def timesup(self):
+        self.dialogSignel.emit(1)
+        self.s.close()
+    
+    def timesupcd(self):
+        self.dialogSignel.emit(1)
+        self.c.close()
 
-class showalarm(QWidget):
-    windowWidth = 350
-    windowHeight = 132
+class showalarm(QDialog):
+    windowWidth = 300
+    windowHeight = 301
     def __init__(self):
         super().__init__()
  
-        self.pix = QPixmap('alarmbg.png')
+        self.pix = QPixmap('cddbg.png')
         self.resize(350, 132)
-        self.pix = self.pix.scaled(int(350), int(132))
+        self.pix = self.pix.scaled(int(300), int(301))
         self.setMask(self.pix.mask()) 
         self.setWindowFlags(Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)  # 设置无边框和置顶窗口样式
         screen = QDesktopWidget().screenGeometry()
         size = self.geometry()
-        self.setWindowOpacity(0.5)
+        self.setWindowOpacity(0.8)
         self.move((screen.width() - size.width()) / 2, (screen.height() - 210))
         self.setWindowFlags(Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
-        self.alarmtime=QLabel('',self)
-        self.alarmtime.setGeometry(40,15,300,85)
         #self.init_ui()
         
     def paintEvent(self, event):
         paint = QPainter(self)
         paint.drawPixmap(0, 0, self.pix.width(), self.pix.height(), self.pix)
     
-    def init_ui(self,h,m):
+    def init_ui(self,memo,date):
         self.alarmtime.setFont(QFont('Comic Sans MS',36,QFont.Bold))
         self.alarmtime.setText("<font color=%s>%s</font>" %('#FFFFFF', h+" : "+m))
     def mousePressEvent(self, event):
@@ -382,34 +447,57 @@ class showalarm(QWidget):
         self.m_flag=False
         self.setCursor(QCursor(Qt.ArrowCursor))
 
-class WOrkThread(QThread): 
-    trigger = pyqtSignal() 
-    def __int__(self): 
-        super(WOrkThread,self).__init__() 
-    def run(self): 
-        while True:
-            current_time = time.strftime('%H:%M', time.localtime())
-            now = current_time.split(':')
-            #print(now)
-            if self.hour == now[0] and self.min == now[1]:
-                winsound.Beep(600, 1000)
-                break 
-        self.trigger.emit()
-        #迴圈完畢後發出訊號 
-    def setvalue(self,h,m):
-        self.hour=h
-        self.min=m
-        print(self.hour,self.min)
-        self.run()
+class countdown(QDialog):
+    windowWidth = 350
+    windowHeight = 132
+    def __init__(self):
+        super().__init__()
+ 
+        self.pix = QPixmap('alarmbg.png')
+        self.resize(350, 132)
+        self.pix = self.pix.scaled(int(350), int(132))
+        self.setMask(self.pix.mask()) 
+        self.setWindowFlags(Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)  # 设置无边框和置顶窗口样式
+        screen = QDesktopWidget().screenGeometry()
+        size = self.geometry()
+        self.setWindowOpacity(0.5)
+        self.move((screen.width() - size.width()) / 2, (screen.height() - 210))
+        self.setWindowFlags(Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+        self.countdowntime=QLabel('',self)
+        self.countdowntime.setGeometry(25,32,305,60)
+        
+    def paintEvent(self, event):
+        paint = QPainter(self)
+        paint.drawPixmap(0, 0, self.pix.width(), self.pix.height(), self.pix)
     
+    def init_ui(self,h,m,s):
+        
+        self.countdowntime.setFont(QFont('Comic Sans MS',24,QFont.Bold))
+        self.countdowntime.setText("<font color=%s>%s</font>" %('#FFFFFF', h+" : "+m+" : "+s))
+                                                                
+    def mousePressEvent(self, event):
+        if event.button()==Qt.LeftButton:
+            self.m_flag=True
+            self.m_Position=event.globalPos()-self.pos() #獲取滑鼠相對視窗的位置
+            event.accept()
+            self.setCursor(QCursor(Qt.OpenHandCursor))  #更改滑鼠圖示
+        if event.button()==Qt.RightButton:
+            self.close()
+            
+    def mouseMoveEvent(self, QMouseEvent):
+        if Qt.LeftButton and self.m_flag:  
+            self.move(QMouseEvent.globalPos()-self.m_Position)#更改視窗位置
+            QMouseEvent.accept()
+            
+    def mouseReleaseEvent(self, QMouseEvent):
+        self.m_flag=False
+        self.setCursor(QCursor(Qt.ArrowCursor))
+
 class WorkThread(QThread): 
     trigger = pyqtSignal() 
     def __int__(self): 
         super(WorkThread,self).__init__() 
     def run(self): 
-        #for i in range(203300030): 
-        #    print(i)
-        #    pass 
         while True:
             current_time = time.strftime('%H:%M', time.localtime())
             now = current_time.split(':')
@@ -419,15 +507,9 @@ class WorkThread(QThread):
                 break
         self.trigger.emit()
         #迴圈完畢後發出訊號 
-
-def go():
-    print('go')
-
-
         
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    workThread=WorkThread()
     form = alarmwindow()
     form.show()
     sys.exit(app.exec_())
