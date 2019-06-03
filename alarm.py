@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QWidget, QCheckBox, QApplication, QPushButton,QMessageBox,QLineEdit,QFileDialog
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QPixmap
-import mp3play
+import pygame
 import PyQt5.QtCore as QtCore
 import winsound
 
@@ -18,34 +18,25 @@ class SwitchBtn(QWidget):
     #信号
     checkedChanged = pyqtSignal(bool)
     def __init__(self,parent=None):
-        super(QWidget, self).__init__(parent)
-        
+        super(QWidget, self).__init__(parent)        
         self.checked = False
         self.bgColorOn = QColor(240, 128, 128)
         self.bgColorOff = QColor(119,136,153)
-
         self.sliderColorOn = QColor(100, 100, 100)
         self.sliderColorOff = QColor(240, 128, 128)
-
         self.textColorOn = QColor(255, 255, 255)
         self.textColorOff = QColor(255, 255, 255)
-
         self.textOff = "OFF"
         self.textOn = "ON"
         self.space = 2
         self.rectRadius = 5
-
         self.step = self.width() / 50
         self.startX = 0
         self.endX = 0
-
         self.timer = QTimer(self)  # 初始化一个定时器
         self.timer.timeout.connect(self.updateValue)  # 计时结束调用operate()方法
-
         #self.timer.start(5)  # 设置计时间隔并启动
-
         self.setFont(QFont("Microsoft Yahei", 10))
-
         #self.resize(55,22)
 
     def updateValue(self):
@@ -61,15 +52,12 @@ class SwitchBtn(QWidget):
             else:
                 self.startX = self.endX
                 self.timer.stop()
-
         self.update()
-
 
     def mousePressEvent(self,event):
         self.checked = not self.checked
         #发射信号
         self.checkedChanged.emit(self.checked)
-
         # 每次移动的步长为宽度的50分之一
         self.step = self.width() / 50
         #状态切换改变后自动计算终点坐标
@@ -82,41 +70,29 @@ class SwitchBtn(QWidget):
     def paintEvent(self, evt):
         #绘制准备工作, 启用反锯齿
             painter = QPainter()
-
-
-
             painter.begin(self)
-
             painter.setRenderHint(QPainter.Antialiasing)
-
-
             #绘制背景
             self.drawBg(evt, painter)
             #绘制滑块
             self.drawSlider(evt, painter)
             #绘制文字
             self.drawText(evt, painter)
-
             painter.end()
-
 
     def drawText(self, event, painter):
         painter.save()
-
         if self.checked:
             painter.setPen(self.textColorOn)
             painter.drawText(0, 0, self.width() / 2 + self.space * 2, self.height(), Qt.AlignCenter, self.textOn)
         else:
             painter.setPen(self.textColorOff)
             painter.drawText(self.width() / 2, 0,self.width() / 2 - self.space, self.height(), Qt.AlignCenter, self.textOff)
-
         painter.restore()
-
 
     def drawBg(self, event, painter):
         painter.save()
         painter.setPen(Qt.NoPen)
-
         if self.checked:
             painter.setBrush(self.bgColorOn)
         else:
@@ -293,6 +269,7 @@ class alarmwindow(QDialog):
         self.cds.setGeometry(218,500,75,30)
         self.colon1.setGeometry(103,500,70,30)
         self.colon2.setGeometry(202,500,70,30)
+        self.musicon=0
     
     def setal(self):
         self.s = showalarm()
@@ -316,7 +293,6 @@ class alarmwindow(QDialog):
         self.workThread.start()
         self.workThread.trigger.connect(self.timesup)
         
-    
     def setcd(self):
         self.c=countdown()
         self.hh=self.cdhour.currentIndex()
@@ -387,37 +363,56 @@ class alarmwindow(QDialog):
     def getState(self,checked):
         print("checked=", checked)
         if checked==True:
-            #print(self.tb1.hour.currentIndex())
-            #print(self.tb1.min.currentIndex())
-            time = QTime.currentTime()
-            print(time.toString(Qt.DefaultLocaleLongDate))
+            self.musicon=1
+        else:
+            self.musicon=0
     def song(self):
         filename,  _ = QFileDialog.getOpenFileName(self, 'Open file', './')
         file=open(filename)
+        self.ringsong=filename
         self.file.setText(filename.split("/")[-1] )
-    
+        
     def timesup(self):
         self.dialogSignel.emit(1)
         self.s.close()
+        self.tu=timesup()
+        self.tu.show()
+        if self.musicon==1:
+            pygame.mixer.init()
+            pygame.mixer.music.load(self.ringsong) 
+            pygame.mixer.music.play(0)
+        self.tu.tudialogSignel.connect(self.musicstop)
     
     def timesupcd(self):
         self.dialogSignel.emit(1)
         self.c.close()
+        self.tu=timesup()
+        self.tu.show()
+        if self.musicon==1:
+            pygame.mixer.init()
+            pygame.mixer.music.load(self.ringsong) 
+            pygame.mixer.music.play(0)
+        self.tu.tudialogSignel.connect(self.musicstop)
+    
+    def musicstop(self,flag):
+        if flag==1 and self.musicon==1:
+            print('stop')
+            pygame.mixer.music.stop()
 
 class showalarm(QDialog):
-    windowWidth = 300
-    windowHeight = 301
+    windowWidth = 350
+    windowHeight = 132
     def __init__(self):
         super().__init__()
  
-        self.pix = QPixmap('cddbg.png')
+        self.pix = QPixmap('alarmbg.png')
         self.resize(350, 132)
-        self.pix = self.pix.scaled(int(300), int(301))
+        self.pix = self.pix.scaled(int(350), int(132))
         self.setMask(self.pix.mask()) 
         self.setWindowFlags(Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)  # 设置无边框和置顶窗口样式
         screen = QDesktopWidget().screenGeometry()
         size = self.geometry()
-        self.setWindowOpacity(0.8)
+        self.setWindowOpacity(0.5)
         self.move((screen.width() - size.width()) / 2, (screen.height() - 210))
         self.setWindowFlags(Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
         #self.init_ui()
@@ -426,7 +421,8 @@ class showalarm(QDialog):
         paint = QPainter(self)
         paint.drawPixmap(0, 0, self.pix.width(), self.pix.height(), self.pix)
     
-    def init_ui(self,memo,date):
+    def init_ui(self,h,m):
+        self.alarmtime=QLabel(self)
         self.alarmtime.setFont(QFont('Comic Sans MS',36,QFont.Bold))
         self.alarmtime.setText("<font color=%s>%s</font>" %('#FFFFFF', h+" : "+m))
     def mousePressEvent(self, event):
@@ -471,7 +467,6 @@ class countdown(QDialog):
         paint.drawPixmap(0, 0, self.pix.width(), self.pix.height(), self.pix)
     
     def init_ui(self,h,m,s):
-        
         self.countdowntime.setFont(QFont('Comic Sans MS',24,QFont.Bold))
         self.countdowntime.setText("<font color=%s>%s</font>" %('#FFFFFF', h+" : "+m+" : "+s))
                                                                 
@@ -503,10 +498,41 @@ class WorkThread(QThread):
             now = current_time.split(':')
             print(now)
             if self.hour == now[0] and self.min == now[1]:
-                winsound.Beep(600, 1000)
+                #winsound.Beep(600, 2000)
                 break
         self.trigger.emit()
         #迴圈完畢後發出訊號 
+        
+class timesup(QDialog):
+    tudialogSignel=pyqtSignal(int)
+    windowWidth = 441
+    windowHeight = 262
+    def __init__(self):
+        super().__init__()
+ 
+        self.pix = QPixmap('tu.png')
+        self.resize(441, 262)
+        self.pix = self.pix.scaled(int(441), int(262))
+        self.setMask(self.pix.mask()) 
+        self.setWindowFlags(Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)  # 设置无边框和置顶窗口样式
+        screen = QDesktopWidget().screenGeometry()
+        size = self.geometry()
+        self.setWindowOpacity(1)
+        self.move((screen.width()/2/2)+20, (screen.height()/2/2)+60)
+        self.setWindowFlags(Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+        self.closebutton=QPushButton(self)
+        self.closebutton.setText('X')
+        self.closebutton.setFont(font) 
+        self.closebutton.setStyleSheet("color:white;background-color:LightCoral;border-radius:4px;min-width: 1em;")
+        self.closebutton.setGeometry(363,20,30,30)
+        self.closebutton.clicked.connect(self.stopclose)
+    def paintEvent(self, event):
+        paint = QPainter(self)
+        paint.drawPixmap(0, 0, self.pix.width(), self.pix.height(), self.pix)
+    
+    def stopclose(self):
+        self.tudialogSignel.emit(1)
+        self.close()
         
 if __name__ == "__main__":
     app = QApplication(sys.argv)

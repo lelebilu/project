@@ -11,6 +11,8 @@ import win32com.client
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+import Countdowndays
+from pathlib import Path 
 
 class PixWindow(QWidget):  # 不规则窗体
     
@@ -27,6 +29,7 @@ class PixWindow(QWidget):  # 不规则窗体
         screen = QDesktopWidget().screenGeometry()
         size = self.geometry()
         self.move((screen.width() - size.width()) / 2, (screen.height() - 210))
+        self.checkcd()
         
     def mousePressEvent(self, event):
         #鼠标左键按下
@@ -49,7 +52,6 @@ class PixWindow(QWidget):  # 不规则窗体
             action=contextMenu.exec_(self.mapToGlobal(event.pos()))
             if action==alarmAct:
                 self.a=alarm.alarmwindow()
-                #self.a.workThread=WorkThread()
                 self.a.show()
                 self.a.dialogSignel.connect(self.notice)
             if action==calculatorAct:
@@ -62,6 +64,8 @@ class PixWindow(QWidget):  # 不规则窗体
             if action==weatherAct:
                 self.w=weather.WeatherWindow()
                 self.w.show()
+            if action==countdowndaysAct:
+                self.c.show()
             if action==quitAct:
                 self.close()
             
@@ -90,7 +94,17 @@ class PixWindow(QWidget):  # 不规则窗体
             screen = QDesktopWidget().screenGeometry()
             size = self.geometry()
             self.move((screen.width() - size.width()) / 2, screen.height()/2)
-    
+            
+    def checkcd(self):
+        self.c=Countdowndays.countdowndays()
+        my_file = Path("cdd.txt")
+        if my_file.is_file():
+            print("路徑是檔案。")
+            f = open(my_file, 'r')
+            line=f.readline()
+            if line!="":
+                print(line)
+                self.c.countdays()
       
 def numbers_to_strings(argument):
     switcher = {
