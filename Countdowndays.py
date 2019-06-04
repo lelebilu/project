@@ -81,8 +81,8 @@ class countdowndays(QWidget):
         y=int(b[0])
         m=int(b[1])
         d=int(b[2])
-        t = (datetime.datetime(y,m,d,12,0,0) - datetime.datetime.now()).total_seconds()
-        daysleft=int(t/86400)
+        t = (datetime.datetime(y,m,d,0,0,0) - datetime.datetime.now()).total_seconds()
+        daysleft=int(t/86400)+1
         self.scd=showcd()
         self.scd.init_ui(daysleft,thememo,thedate)
         self.scd.show()
