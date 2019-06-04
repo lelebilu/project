@@ -272,7 +272,7 @@ class alarmwindow(QDialog):
         self.musicon=0
     
     def setal(self):
-        self.s = showalarm()
+        self.sal = showalarm()
         hh=self.tb1.hour.currentIndex()
         mm=self.tb1.min.currentIndex()
         if hh<10:
@@ -283,10 +283,9 @@ class alarmwindow(QDialog):
             m="0"+str(mm)
         else:
             m=str(mm)
-        self.s.init_ui(h,m)
-        self.s.show()
+        self.sal.init_ui(h,m)
+        self.sal.show()
         print('set')
-        #workThread.setvalue(h,m)
         self.workThread=WorkThread()
         self.workThread.hour=h
         self.workThread.min=m
@@ -343,7 +342,6 @@ class alarmwindow(QDialog):
             else:
                 self.s=str(self.ss)
             self.c.init_ui(self.h,self.m,self.s)
-            self.c.show()
         
     def stopthread(self,flag):
         if flag==1:
@@ -374,7 +372,7 @@ class alarmwindow(QDialog):
         
     def timesup(self):
         self.dialogSignel.emit(1)
-        self.s.close()
+        self.sal.close()
         self.tu=timesup()
         self.tu.show()
         if self.musicon==1:
@@ -425,6 +423,7 @@ class showalarm(QDialog):
         self.alarmtime=QLabel(self)
         self.alarmtime.setFont(QFont('Comic Sans MS',36,QFont.Bold))
         self.alarmtime.setText("<font color=%s>%s</font>" %('#FFFFFF', h+" : "+m))
+        self.alarmtime.setGeometry(40,10,300,100)
     def mousePressEvent(self, event):
         if event.button()==Qt.LeftButton:
             self.m_flag=True
@@ -501,7 +500,7 @@ class WorkThread(QThread):
                 #winsound.Beep(600, 2000)
                 break
         self.trigger.emit()
-        #迴圈完畢後發出訊號 
+        #時間到時發出訊號 
         
 class timesup(QDialog):
     tudialogSignel=pyqtSignal(int)
