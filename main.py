@@ -1,7 +1,8 @@
-import sys
+﻿import sys
 import pygame
 import weather
 import alarm
+import translate
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QApplication, QDesktopWidget,QMenu
 from PyQt5.QtGui import QPixmap, QPainter, QBitmap, QCursor
@@ -69,6 +70,9 @@ class PixWindow(QWidget):  # 不规则窗体
                 self.w.show()
             if action==countdowndaysAct:
                 self.c.show()
+	    if action==transAct:
+                self.w=translate.TranslateWindow()
+                self.w.show()
             if action==quitAct:
                 self.close()
             
