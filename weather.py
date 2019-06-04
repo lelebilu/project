@@ -7,6 +7,7 @@ Created on Mon May 27 13:38:17 2019
 import sys
 from PyQt5 import QtGui, QtWidgets
 from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtGui import QIcon
 from weatherWindow import Ui_WeatherWindow
 import requests
 
@@ -15,6 +16,9 @@ class WeatherWindow(QtWidgets.QMainWindow, Ui_WeatherWindow):
         super(QMainWindow, self).__init__(parent=parent)
         self.ui = Ui_WeatherWindow()
         self.ui.setupUi(self)
+        icon=QIcon("weatherIcon.png")
+        self.setWindowIcon(icon)
+        self.setStyleSheet("background-color:white;");
         self.init_ui()
     
     def init_ui(self):
@@ -30,6 +34,7 @@ class WeatherWindow(QtWidgets.QMainWindow, Ui_WeatherWindow):
         api_address = 'http://api.openweathermap.org/data/2.5/weather?appid=1418a9a29d87b90bd6e3c904f01ae38d&q='
         url = api_address + text
         json_data = requests.get(url).json()
+
 
         self.ui.city.setText(text)
         self.ui.temprature.setText(str(round(json_data['main']['temp']-273.15)) + "°С")

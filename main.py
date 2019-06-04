@@ -62,6 +62,9 @@ class PixWindow(QWidget):  # 不规则窗体
                 win32api.Sleep(500)
                 win32gui.SetForegroundWindow(win)
             if action==weatherAct:
+                pygame.mixer.init()
+                pygame.mixer.music.load("weather.mp3")
+                pygame.mixer.music.play()  
                 self.w=weather.WeatherWindow()
                 self.w.show()
             if action==countdowndaysAct:
