@@ -286,7 +286,6 @@ class alarmwindow(QDialog):
         self.sal.init_ui(h,m)
         self.sal.show()
         print('set')
-        #workThread.setvalue(h,m)
         self.workThread=WorkThread()
         self.workThread.hour=h
         self.workThread.min=m
@@ -343,7 +342,6 @@ class alarmwindow(QDialog):
             else:
                 self.s=str(self.ss)
             self.c.init_ui(self.h,self.m,self.s)
-            self.c.show()
         
     def stopthread(self,flag):
         if flag==1:
