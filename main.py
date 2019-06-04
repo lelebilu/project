@@ -49,6 +49,7 @@ class PixWindow(QWidget):  # 不规则窗体
             countdowndaysAct=contextMenu.addAction("CountdownDays")
             calculatorAct=contextMenu.addAction("Calculator")
             weatherAct=contextMenu.addAction("Weather")
+	    transAct=contextMenu.addAction("Translate")
             quitAct=contextMenu.addAction("Bye")
             action=contextMenu.exec_(self.mapToGlobal(event.pos()))
             if action==alarmAct:
