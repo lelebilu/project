@@ -1,3 +1,4 @@
+
 圖像:
 	站定不動的圖像: origin.png
 	抓起來的	  : drag.png
